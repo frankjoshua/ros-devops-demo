@@ -1,0 +1,8 @@
+---
+- hosts: desktop
+  tasks:
+  - name: Install ROS Desktop 
+    apt:
+      name: ros-desktop
+      state: present
+    become: yes
