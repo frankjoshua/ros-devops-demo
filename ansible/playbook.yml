@@ -1,4 +1,40 @@
 ---
+
+- hosts: all
+  gather_facts: no
+  pre_tasks:
+    - name: Install python2 if not found
+      raw: test -e /usr/bin/python || sudo apt-get -y install python-minimal
+    - name: Gathering facts
+      setup:
+  vars:
+    pip_install_packages:
+      - name: docker
+  roles:
+    - geerlingguy.pip
+    - geerlingguy.docker
+  become: yes
+  tasks:
+  - name: Install base software
+    apt:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - git
+    become: yes
+  - name: Add user to docker group
+    user:
+      name: vagrant
+      groups: docker
+
+  - name: Install Git repo with robot softare
+    git:
+      repo: https://github.com/frankjoshua/gobbit.git
+      dest: /home/vagrant/gobbit
+      update: no
+      accept_hostkey: True
+      ssh_opts: -o StrictHostKeyChecking=no
+
 - hosts: desktop
   tasks:
   - name: Install ROS Desktop 
@@ -6,3 +42,18 @@
       name: ros-desktop
       state: present
     become: yes
+
+- hosts: robot
+  tasks:
+  - name: Start Cloud 9 IDE
+    docker_container:
+      name: c9-ide
+      image: kdelfour/cloud9-docker
+      state: started
+      restart_policy: unless-stopped
+      ports:
+        - "8181:80"
+      volumes:
+        - "/home/vagrant/gobbit:/workspace"
+    become: yes
+    become_user: vagrant

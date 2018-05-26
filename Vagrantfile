@@ -10,10 +10,6 @@ Vagrant.configure("2") do |config|
   # For a complete reference, please see the online documentation at
   # https://docs.vagrantup.com.
 
-  # Every Vagrant development environment requires a box. You can search for
-  # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "ubuntu/bionic64"
-
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
@@ -37,7 +33,7 @@ Vagrant.configure("2") do |config|
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
   # your network.
-  # config.vm.network "public_network"
+  config.vm.network "public_network"
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
@@ -49,37 +45,47 @@ Vagrant.configure("2") do |config|
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
-  config.vm.provider "virtualbox" do |vb|
-    # Display the VirtualBox GUI when booting the machine
-    vb.gui = true
-  
-    # Customize the amount of memory on the VM:
-    vb.memory = "1024"
-  end
-  #
-  # View the documentation for the provider you are using for more
-  # information on available options.
 
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", inline: <<-SHELL
+
+  #
+  # Run Ansible from the Vagrant Host
+  #
+  config.vm.define "desktop" do |desktop|
+    desktop.vm.provider "virtualbox" do |vb|
+      # Display the VirtualBox GUI when booting the machine
+      vb.gui = true
+      # Customize the amount of memory on the VM:
+      vb.memory = "1024"
+    end
+    # Every Vagrant development environment requires a box. You can search for
+    # boxes at https://vagrantcloud.com/search.
+    desktop.vm.box = "ubuntu/bionic64"
+    # Enable provisioning with a shell script. Additional provisioners such as
+    # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
+    # documentation for more information about their specific syntax and use.
+    desktop.vm.provision "shell", inline: <<-SHELL
     sudo apt-get update
-    sudo apt-get install -y --no-install-recommends lubuntu-desktop python virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11
-    sudo sed -i 's/allowed_users=.*$/allowed_users=anybody/' /etc/X11/Xwrapper.config
+    sudo apt-get install -y xubuntu-desktop virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11
     sudo VBoxClient --clipboard
     sudo VBoxClient --draganddrop
     sudo VBoxClient --display
     sudo VBoxClient --checkhostversion
     sudo VBoxClient --seamless
-  SHELL
-
-  #
-  # Run Ansible from the Vagrant Host
-  #
-  config.vm.define "desktop"
-  config.vm.provision "ansible" do |ansible|
-    ansible.playbook = "ansible/playbook.yml"
+    SHELL
   end
 
+  config.vm.define "robot" do |robot|
+    robot.vm.provider "virtualbox" do |vb|
+      # Display the VirtualBox GUI when booting the machine
+      vb.gui = true
+      # Customize the amount of memory on the VM:
+      vb.memory = "1024"
+    end
+    robot.vm.box = "ubuntu/bionic64"
+  end
+  
+  config.vm.provision "ansible" do |ansible|
+    ansible.galaxy_role_file = 'ansible/requirements.yml'
+    ansible.playbook = "ansible/playbook.yml"
+  end
 end
