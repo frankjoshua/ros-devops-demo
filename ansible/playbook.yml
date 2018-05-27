@@ -10,9 +10,10 @@
   vars:
     pip_install_packages:
       - name: docker
+    docker_apt_release_channel: edge
   roles:
-    - geerlingguy.pip
-    - geerlingguy.docker
+    - ansible-role-pip
+    - ansible-role-docker
   become: yes
   tasks:
   - name: Install base software
@@ -22,10 +23,15 @@
     loop:
       - git
     become: yes
+
   - name: Add user to docker group
     user:
       name: vagrant
       groups: docker
+
+  #  Not working https://github.com/ansible/ansible/issues/27520
+  # - name: Reset connection so group is applied to user
+  #   meta: reset_connection
 
   - name: Install Git repo with robot softare
     git:

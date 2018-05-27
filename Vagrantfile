@@ -33,7 +33,7 @@ Vagrant.configure("2") do |config|
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
   # your network.
-  config.vm.network "public_network"
+  # config.vm.network "public_network"
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
@@ -41,16 +41,21 @@ Vagrant.configure("2") do |config|
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
 
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
-  # Example for VirtualBox:
-  #
 
 
-  #
-  # Run Ansible from the Vagrant Host
-  #
+  config.vm.define "robot" do |robot|
+    robot.vm.network "private_network", ip: "192.168.33.2"
+    robot.vm.provider "virtualbox" do |vb|
+      # Display the VirtualBox GUI when booting the machine
+      vb.gui = true
+      # Customize the amount of memory on the VM:
+      vb.memory = "1024"
+    end
+    robot.vm.box = "ubuntu/bionic64"
+  end
+
   config.vm.define "desktop" do |desktop|
+    desktop.vm.network "private_network", ip: "192.168.33.1"
     desktop.vm.provider "virtualbox" do |vb|
       # Display the VirtualBox GUI when booting the machine
       vb.gui = true
@@ -73,17 +78,10 @@ Vagrant.configure("2") do |config|
     sudo VBoxClient --seamless
     SHELL
   end
-
-  config.vm.define "robot" do |robot|
-    robot.vm.provider "virtualbox" do |vb|
-      # Display the VirtualBox GUI when booting the machine
-      vb.gui = true
-      # Customize the amount of memory on the VM:
-      vb.memory = "1024"
-    end
-    robot.vm.box = "ubuntu/bionic64"
-  end
   
+  #
+  # Run Ansible from the Vagrant Host
+  #
   config.vm.provision "ansible" do |ansible|
     ansible.galaxy_role_file = 'ansible/requirements.yml'
     ansible.playbook = "ansible/playbook.yml"
