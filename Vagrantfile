@@ -55,12 +55,12 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define "desktop" do |desktop|
-    desktop.vm.network "private_network", ip: "192.168.33.1"
+    desktop.vm.network "private_network", ip: "192.168.33.3"
     desktop.vm.provider "virtualbox" do |vb|
       # Display the VirtualBox GUI when booting the machine
       vb.gui = true
       # Customize the amount of memory on the VM:
-      vb.memory = "1024"
+      vb.memory = "4096"
     end
     # Every Vagrant development environment requires a box. You can search for
     # boxes at https://vagrantcloud.com/search.

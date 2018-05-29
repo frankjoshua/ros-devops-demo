@@ -51,6 +51,13 @@
 
 - hosts: robot
   tasks:
+  tasks:
+  - name: Install ROS Base 
+    apt:
+      name: ros-base
+      state: present
+    become: yes
+
   - name: Start Cloud 9 IDE
     docker_container:
       name: c9-ide
